@@ -8,6 +8,7 @@ class NextPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            
             Text('This is the Next page!'),
             SizedBox(height: 20),
             // 戻るボタン

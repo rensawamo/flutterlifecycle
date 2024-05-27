@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './nextPage.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 void main() {
   runApp(MyApp());
 }
@@ -10,35 +12,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/pageA',
+      routes: {
+        '/pageA': (context) => PageA(),
+        '/pageB': (context) => NextPage(),
+      },
+      navigatorObservers: [
+        routeObserver,
+      ],
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+class PageA extends StatefulWidget {
+  PageA({Key? key, this.title}) : super(key: key);
   final String? title;
 
   @override
-  _MyHomePageState createState() =>
-      _MyHomePageState();
+  _PageAState createState() => _PageAState();
 }
 
 // 1
 // Called as soon as statefulWidget is built
 // Called to create state in the widget tree
-class _MyHomePageState extends State<MyHomePage> {
-
-  //  2
-  // Initialize the Widget tree.
-  // Called only once
+class _PageAState extends State<PageA> with RouteAware, WidgetsBindingObserver {
+//  2
+// Initialize the Widget tree.
+// Called only once
   @override
   void initState() {
     print("call initState");
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   // 3
@@ -47,6 +52,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void didChangeDependencies() {
     print("call didChangeDependencies");
     super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("call didChangeAppLifecycleState");
+    print("state = $state");
   }
 
   // 4 or if change
@@ -58,16 +70,15 @@ class _MyHomePageState extends State<MyHomePage> {
     print("call build");
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title!),
+        title: Text(widget.title ?? 'PageA'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'flutter life',
+              'flutter life scycle',
             ),
-
           ],
         ),
       ),
@@ -100,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void deactivate() {
     print("call deactivate");
     super.deactivate();
+    routeObserver.unsubscribe(this);
   }
 
   // 5
@@ -107,6 +119,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     print("call dispose");
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didPush() {
+    print("call didPush");
+    super.didPush();
+  }
+
+  @override
+  void didPop() {
+    print("call didPop");
+    super.didPop();
+  }
+
+  @override
+  void didPopNext() {
+    print("call didPopNext");
+    super.didPopNext();
+  }
+
+  @override
+  void didPushNext() {
+    print("call didPushNext");
+    super.didPushNext();
   }
 }
